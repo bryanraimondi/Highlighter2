@@ -1,23 +1,20 @@
-name: Build Executables
+name: Build Windows Executable
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - "v*"
-  workflow_dispatch:
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+  build-windows:
+    runs-on: windows-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -28,12 +25,12 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
-      - name: Build with PyInstaller
+      - name: Build EXE (Windows onefile)
         run: |
-          pyinstaller build.spec
+          pyinstaller --clean --noconfirm --onefile --windowed src/main.py --name LB6_Shift_ETL
 
-      - name: Upload artifact
+      - name: Upload EXE artifact
         uses: actions/upload-artifact@v4
         with:
-          name: LB6_Shift_ETL_${{ matrix.os }}
-          path: dist/*
+          name: LB6_Shift_ETL_Windows
+          path: dist/LB6_Shift_ETL.exe
